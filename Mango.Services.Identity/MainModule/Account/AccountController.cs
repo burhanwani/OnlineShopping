@@ -308,6 +308,8 @@ namespace IdentityServerHost.Quickstart.UI
                 }
             }
 
+            //Add this line!
+            await BuildRegisterViewModelAsync(returnUrl);
             // If we got this far, something failed, redisplay form
             return View(model);
         }

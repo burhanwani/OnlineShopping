@@ -44,6 +44,7 @@ namespace Mango.Services.Identity
                     ClientSecrets= { new Secret("secret".Sha256())},
                     AllowedGrantTypes = GrantTypes.Code,
                     //This is the redirect ssl port from launchsettings.json in Mango.Web
+                    // In the course he instructs to use 44338 ie; the ssl port from mango.web but that throws error. Look at questions and answers in lecture 51. 
                     RedirectUris={ "https://localhost:7115/signin-oidc" },
                     PostLogoutRedirectUris={"https://localhost:7115/signout-callback-oidc" },
                     AllowedScopes=new List<string>
