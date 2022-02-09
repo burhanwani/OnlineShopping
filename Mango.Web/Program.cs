@@ -16,12 +16,19 @@ using System.Threading.Tasks;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllersWithViews();
+
 builder.Services.AddHttpClient<IProductService, ProductService>();
+builder.Services.AddHttpClient<ICartService, CartService>();
+
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<ICartService, CartService>();
+builder.Services.AddScoped<IBaseService, BaseService>();
 
 ConfigurationManager configuration = builder.Configuration;
 SD.ProductAPIBase = configuration["ServiceUrls:ProductAPI"];
+SD.ShoppingCartAPIBase = configuration["ServiceUrls:ShoppingCartAPI"];
+SD.CouponAPIBase = configuration["ServiceUrls:CouponAPI"];
+builder.Services.AddControllersWithViews();
 
 builder.Services.AddAuthentication(options =>
 {
