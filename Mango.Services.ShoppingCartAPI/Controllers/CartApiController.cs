@@ -1,4 +1,5 @@
-﻿//using Mango.MessageBus;
+﻿using Mango.MessageBus;
+using Mango.Services.ShoppingCartAPI.Messages;
 //using Mango.Services.ShoppingCartAPI.Messages;
 using Mango.Services.ShoppingCartAPI.Models.Dto;
 using Mango.Services.ShoppingCartAPI.Repository;
@@ -16,14 +17,14 @@ namespace Mango.Services.ShoppingCartAPI.Controllers
     {
         private readonly ICartRepository _cartRepository;
         //private readonly ICouponRepository _couponRepository;
-        //private readonly IMessageBus _messageBus;
+        private readonly IMessageBus _messageBus;
         protected ResponseDto _response;
 
-        public CartAPIController(ICartRepository cartRepository /*, IMessageBus messageBus, ICouponRepository couponRepository*/)
+        public CartAPIController(ICartRepository cartRepository , IMessageBus messageBus /*, ICouponRepository couponRepository*/)
         {
             _cartRepository = cartRepository;
             //_couponRepository = couponRepository;
-            //_messageBus = messageBus;
+            _messageBus = messageBus;
             this._response = new ResponseDto();
         }
 
@@ -51,7 +52,7 @@ namespace Mango.Services.ShoppingCartAPI.Controllers
                 CartDto cartDt = await _cartRepository.CreateUpdateCart(cartDto);
                 _response.Result = cartDt;
             }
-            catch (Exception ex)
+            catch (Exception ex) 
             {
                 _response.IsSuccess = false;
                 _response.ErrorMessages = new List<string>() { ex.ToString() };
@@ -125,8 +126,9 @@ namespace Mango.Services.ShoppingCartAPI.Controllers
         }
         */
 
-        /*
         
+        // This end point gets hit from Mango.web and cartHeaderDto is being sent from there but here 
+        // we are collecting that into CheckoutHeaderDto. So this is possible !! 
         [HttpPost("Checkout")]
         public async Task<object> Checkout(CheckoutHeaderDto checkoutHeader)
         {
@@ -137,7 +139,7 @@ namespace Mango.Services.ShoppingCartAPI.Controllers
                 {
                     return BadRequest();
                 }
-
+                /*
                 if (!string.IsNullOrEmpty(checkoutHeader.CouponCode))
                 {
                     CouponDto coupon = await _couponRepository.GetCoupon(checkoutHeader.CouponCode);
@@ -149,11 +151,11 @@ namespace Mango.Services.ShoppingCartAPI.Controllers
                         return _response;
                     }
                 }
-
+                */
                 checkoutHeader.CartDetails = cartDto.CartDetails;
                 //logic to add message to process order.
-                await _messageBus.PublishMessage(checkoutHeader, "checkoutqueue");
-                await _cartRepository.ClearCart(checkoutHeader.UserId);
+                await _messageBus.PublishMessage(checkoutHeader, "checkoutmessagetopic");
+                //await _cartRepository.ClearCart(checkoutHeader.UserId);
             }
             catch (Exception ex)
             {
@@ -162,6 +164,6 @@ namespace Mango.Services.ShoppingCartAPI.Controllers
             }
             return _response;
         }
-        */
+        
     }
 }
