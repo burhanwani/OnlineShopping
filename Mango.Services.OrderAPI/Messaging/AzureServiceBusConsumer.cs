@@ -47,7 +47,7 @@ namespace Mango.Services.OrderAPI.Messaging
 
             // Setting up the client to instantiate the checkout Processor. 
             checkOutProcessor = client.CreateProcessor(checkoutMessageTopic, subscriptionCheckOut);
-            //orderUpdatePaymentStatusProcessor = client.CreateProcessor(orderUpdatePaymentResultTopic, subscriptionCheckOut);
+            orderUpdatePaymentStatusProcessor = client.CreateProcessor(orderUpdatePaymentResultTopic, subscriptionCheckOut);
         }
 
         public async Task Start()
@@ -57,9 +57,9 @@ namespace Mango.Services.OrderAPI.Messaging
             checkOutProcessor.ProcessErrorAsync += ErrorHandler;
             await checkOutProcessor.StartProcessingAsync();
 
-            //orderUpdatePaymentStatusProcessor.ProcessMessageAsync += OnOrderPaymentUpdateReceived;
-            //orderUpdatePaymentStatusProcessor.ProcessErrorAsync += ErrorHandler;
-            //await orderUpdatePaymentStatusProcessor.StartProcessingAsync();
+            orderUpdatePaymentStatusProcessor.ProcessMessageAsync += OnOrderPaymentUpdateReceived;
+            orderUpdatePaymentStatusProcessor.ProcessErrorAsync += ErrorHandler;
+            await orderUpdatePaymentStatusProcessor.StartProcessingAsync();
         }
         public async Task Stop()
         {
@@ -116,7 +116,8 @@ namespace Mango.Services.OrderAPI.Messaging
 
             await _orderRepository.AddOrder(orderHeader);
 
-            /*
+            // As soon as we process the order successfully, we need to publish message to the payment service through the message bus. 
+            
             PaymentRequestMessage paymentRequestMessage = new()
             {
                 Name = orderHeader.FirstName + " " + orderHeader.LastName,
@@ -137,10 +138,11 @@ namespace Mango.Services.OrderAPI.Messaging
             {
                 throw;
             }
-            */
+            
 
         }
-        /*
+        
+        // Once the payment api successfully processes the payment, the order api will be called again to mark the order as complete. 
         private async Task OnOrderPaymentUpdateReceived(ProcessMessageEventArgs args)
         {
             var message = args.Message;
@@ -152,6 +154,6 @@ namespace Mango.Services.OrderAPI.Messaging
             await args.CompleteMessageAsync(args.Message);
 
         }
-        */
+        
     }
 }

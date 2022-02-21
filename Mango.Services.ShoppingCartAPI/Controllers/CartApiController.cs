@@ -16,14 +16,14 @@ namespace Mango.Services.ShoppingCartAPI.Controllers
     public class CartAPIController : Controller
     {
         private readonly ICartRepository _cartRepository;
-        //private readonly ICouponRepository _couponRepository;
+        private readonly ICouponRepository _couponRepository;
         private readonly IMessageBus _messageBus;
         protected ResponseDto _response;
 
-        public CartAPIController(ICartRepository cartRepository , IMessageBus messageBus /*, ICouponRepository couponRepository*/)
+        public CartAPIController(ICartRepository cartRepository , IMessageBus messageBus , ICouponRepository couponRepository)
         {
             _cartRepository = cartRepository;
-            //_couponRepository = couponRepository;
+            _couponRepository = couponRepository;
             _messageBus = messageBus;
             this._response = new ResponseDto();
         }
@@ -91,7 +91,7 @@ namespace Mango.Services.ShoppingCartAPI.Controllers
             }
             return _response;
         }
-        /*
+        
         [HttpPost("ApplyCoupon")]
         public async Task<object> ApplyCoupon([FromBody] CartDto cartDto)
         {
@@ -124,7 +124,7 @@ namespace Mango.Services.ShoppingCartAPI.Controllers
             }
             return _response;
         }
-        */
+        
 
         
         // This end point gets hit from Mango.web and cartHeaderDto is being sent from there but here 
@@ -139,9 +139,10 @@ namespace Mango.Services.ShoppingCartAPI.Controllers
                 {
                     return BadRequest();
                 }
-                /*
+                
                 if (!string.IsNullOrEmpty(checkoutHeader.CouponCode))
                 {
+                    // Making a synchronous http call to the couponAPI service. 
                     CouponDto coupon = await _couponRepository.GetCoupon(checkoutHeader.CouponCode);
                     if (checkoutHeader.DiscountTotal != coupon.DiscountAmount)
                     {
@@ -151,7 +152,7 @@ namespace Mango.Services.ShoppingCartAPI.Controllers
                         return _response;
                     }
                 }
-                */
+                
                 checkoutHeader.CartDetails = cartDto.CartDetails;
                 //logic to add message to process order.
                 await _messageBus.PublishMessage(checkoutHeader, "checkoutmessagetopic");

@@ -21,16 +21,23 @@ namespace Mango.Services.ShoppingCartAPI.Repository
             _db = db;
             _mapper = mapper;
         }
-        /*
+
         public async Task<bool> ApplyCoupon(string userId, string couponCode)
         {
-            var cartFromDb = await _db.CartHeaders.FirstOrDefaultAsync(u => u.UserId == userId);
-            cartFromDb.CouponCode = couponCode;
-            _db.CartHeaders.Update(cartFromDb);
+            var cartHeaderFromDb = await _db.CartHeaders.FirstOrDefaultAsync(u => u.UserId == userId);
+            cartHeaderFromDb.CouponCode = couponCode;
+            _db.CartHeaders.Update(cartHeaderFromDb);
             await _db.SaveChangesAsync();
             return true;
         }
-        */
+        public async Task<bool> RemoveCoupon(string userId)
+        {
+            var cartHeaderFromDb = await _db.CartHeaders.FirstOrDefaultAsync(u => u.UserId == userId);
+            cartHeaderFromDb.CouponCode = "";
+            _db.CartHeaders.Update(cartHeaderFromDb);
+            await _db.SaveChangesAsync();
+            return true;
+        }
         public async Task<bool> ClearCart(string userId)
         {
             var cartHeaderFromDb = await _db.CartHeaders.FirstOrDefaultAsync(u => u.UserId == userId);
@@ -45,34 +52,6 @@ namespace Mango.Services.ShoppingCartAPI.Repository
             }
             return false;
         }
-
-        /*
-          
-             public class CartDto
-            {
-                public CartHeaderDto CartHeader { get; set; }
-                public IEnumerable<CartDetailsDto> CartDetails { get; set; }
-            }
-             
-             
-             public class CartHeaderDto
-             {
-                public int CartHeaderId { get; set; }
-                public string UserId { get; set; }
-                public string CouponCode { get; set; }
-                public CartDetailsDto CartDetails { get; set; }
-            }
-
-            public class CartDetailsDto
-            {
-                public int CartDetailsId { get; set; }
-                public int CartHeaderId { get; set; }
-                public CartHeaderDto  CartHeader { get; set; }
-                public int ProductId { get; set; }
-                public ProductDto Product { get; set; }
-                public int Count { get; set; }
-            }
-     */
 
         // This will be called only from the Mango.Web HomeController api DetailsPost where the cartDto will only contain one product. 
         public async Task<CartDto> CreateUpdateCart(CartDto cartDto)
@@ -107,6 +86,7 @@ namespace Mango.Services.ShoppingCartAPI.Repository
                 // TODO: Compare this with the method implemented in the course. Does Entity framwork auto-populate the ids after putting it in the database ?? 
                 /* https://stackoverflow.com/questions/5212751/how-can-i-retrieve-id-of-inserted-entity-using-entity-framework */
                 cart.CartDetails.FirstOrDefault().CartHeaderId = cart.CartHeader.CartHeaderId;
+                // TODO: why is setting the product to null necessary ? It errors out otherwise. 
                 cart.CartDetails.FirstOrDefault().Product = null;
                 _db.CartDetails.Add(cart.CartDetails.FirstOrDefault());
                 await _db.SaveChangesAsync();
@@ -148,23 +128,14 @@ namespace Mango.Services.ShoppingCartAPI.Repository
                 CartHeader = await _db.CartHeaders.FirstOrDefaultAsync(u => u.UserId == userId)
             };
 
-            // What is the use of the include ? 
+            // TODO: What is the use of the include ? 
             cart.CartDetails = _db.CartDetails
                 .Where(u => u.CartHeaderId == cart.CartHeader.CartHeaderId).Include(u => u.Product);
-
-            // TODO: Do I need to populate product as well as done by the instructor ? 
             return _mapper.Map<CartDto>(cart);
         }
-        /*
-        public async Task<bool> RemoveCoupon(string userId)
-        {
-            var cartFromDb = await _db.CartHeaders.FirstOrDefaultAsync(u => u.UserId == userId);
-            cartFromDb.CouponCode = "";
-            _db.CartHeaders.Update(cartFromDb);
-            await _db.SaveChangesAsync();
-            return true;
-        }
-        */
+        
+      
+        
         public async Task<bool> RemoveFromCart(int cartDetailsId)
         {
             try

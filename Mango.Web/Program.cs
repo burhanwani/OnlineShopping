@@ -23,6 +23,7 @@ builder.Services.AddHttpClient<ICartService, CartService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<IBaseService, BaseService>();
+builder.Services.AddScoped<ICouponService, CouponService>();
 
 ConfigurationManager configuration = builder.Configuration;
 SD.ProductAPIBase = configuration["ServiceUrls:ProductAPI"];

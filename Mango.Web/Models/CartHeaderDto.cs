@@ -4,18 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 
 namespace Mango.Web.Models
-{
-    /*
-    public class CartHeaderDto
-    {
-        public int CartHeaderId { get; set; }
-        public string UserId { get; set; }
-        public string CouponCode { get; set; }
-        public CartDetailsDto CartDetails { get; set; }
-        public double OrderTotal { get; set; }
-        public double DiscountTotal { get; set; }
-    }*/
-    
+{   
     public class CartHeaderDto
     {
         public int CartHeaderId { get; set; }

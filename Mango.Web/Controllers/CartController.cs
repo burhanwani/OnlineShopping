@@ -14,11 +14,11 @@ namespace Mango.Web.Controllers
     {
         private readonly IProductService _productService;
         private readonly ICartService _cartService;
-        //private readonly ICouponService _couponService;
-        public CartController(IProductService productService, ICartService cartService /*, ICouponService couponService*/)
+        private readonly ICouponService _couponService;
+        public CartController(IProductService productService, ICartService cartService , ICouponService couponService)
         {
             _productService = productService;
-            //_couponService = couponService;
+            _couponService = couponService;
             _cartService = cartService;
         }
         public async Task<IActionResult> CartIndex()
@@ -40,12 +40,12 @@ namespace Mango.Web.Controllers
             return View();
         }
 
-
+        // This will be called when the checkout button is pressed initially. The form will be displayed to the user to fill in the details. 
         public async Task<IActionResult> Checkout()
         {
             return View(await LoadCartDtoBasedOnLoggedInUser());
         }
-
+        // This will be called when the user fills in the details in the form from the above Checkout flow. 
         [HttpPost]
         public async Task<IActionResult> Checkout(CartDto cartDto)
         {
@@ -84,9 +84,10 @@ namespace Mango.Web.Controllers
 
             if (cartDto.CartHeader != null)
             {
-                /*
+                
                 if (!string.IsNullOrEmpty(cartDto.CartHeader.CouponCode))
                 {
+                    // Always check with the coupon service separately in case the coupon discount has changed. 
                     var coupon = await _couponService.GetCoupon<ResponseDto>(cartDto.CartHeader.CouponCode, accessToken);
                     if (coupon != null && coupon.IsSuccess)
                     {
@@ -94,7 +95,7 @@ namespace Mango.Web.Controllers
                         cartDto.CartHeader.DiscountTotal = couponObj.DiscountAmount;
                     }
                 }
-                */
+                //TODO: check for product price change as well through either directly from productAPI or shoppingCartAPI -> productAPI. 
                 foreach (var detail in cartDto.CartDetails)
                 {
                     cartDto.CartHeader.OrderTotal += (detail.Product.Price * detail.Count);
@@ -105,7 +106,7 @@ namespace Mango.Web.Controllers
             return cartDto;
         }
 
-        /*
+        
        [HttpPost]
        [ActionName("ApplyCoupon")]
        public async Task<IActionResult> ApplyCoupon(CartDto cartDto)
@@ -135,6 +136,6 @@ namespace Mango.Web.Controllers
            }
            return View();
        }
-       */
+       
     }
 }
